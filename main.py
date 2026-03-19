@@ -32,3 +32,16 @@ def add_expense(data: Expense):
         "amount": data.amount,
         "category": data.category
     }
+
+# ✅ NEW Summary API
+@app.get("/summary")
+def get_summary():
+    total_income = sum(incomes)
+    total_expense = sum(expenses)
+    balance = total_income - total_expense
+
+    return {
+        "total_income": total_income,
+        "total_expense": total_expense,
+        "balance": balance
+    }

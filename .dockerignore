@@ -1,0 +1,35 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# pytest cache (causes Windows access denied error during docker build)
+.pytest_cache/
+.coverage
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs (not needed inside the container)
+docs/
+
+# Tests (not needed inside the container)
+tests/
+
+# Environment variables
+.env

@@ -112,17 +112,14 @@ def test_get_budget_status(client):
 # ── Validation & error tests ──────────────────────────────────────────────────
 
 def test_income_zero_amount(client):
-    """Amount = 0 returns HTTP 400."""
+    """Amount = 0 returns HTTP 422 (Pydantic gt=0 validation)."""
     r = client.post("/income", json={"amount": 0, "source": "Test"})
-    assert r.status_code == 400
-    assert r.json()["detail"] == "Amount must be greater than 0"
-
+    assert r.status_code == 422
 
 def test_income_negative_amount(client):
-    """Negative amount returns HTTP 400."""
+    """Negative amount returns HTTP 422 (Pydantic gt=0 validation)."""
     r = client.post("/income", json={"amount": -500, "source": "Test"})
-    assert r.status_code == 400
-    assert r.json()["detail"] == "Amount must be greater than 0"
+    assert r.status_code == 422
 
 
 def test_income_missing_source(client):
@@ -138,11 +135,9 @@ def test_income_empty_source(client):
 
 
 def test_expense_negative_amount(client):
-    """Negative expense amount returns HTTP 400."""
+    """Negative expense amount returns HTTP 422 (Pydantic gt=0 validation)."""
     r = client.post("/expense", json={"amount": -1, "category": "Food"})
-    assert r.status_code == 400
-    assert r.json()["detail"] == "Amount must be greater than 0"
-
+    assert r.status_code == 422
 
 def test_expense_missing_category(client):
     """Missing category returns HTTP 422."""

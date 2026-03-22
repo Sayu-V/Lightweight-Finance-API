@@ -13,6 +13,7 @@ A simple and lightweight REST API for tracking personal income, expenses, and bu
 - View financial summary (total income, total expenses, balance)
 - Set a monthly budget limit
 - Check budget status (spent vs remaining)
+- Health check endpoint
 - Input validation via Pydantic — rejects invalid data with clear error messages
 - Auto-generated interactive API documentation (Swagger UI)
 - Containerised with Docker for portable deployment
@@ -21,15 +22,15 @@ A simple and lightweight REST API for tracking personal income, expenses, and bu
 
 ## Tech Stack
 
-| Component      | Technology              |
-|----------------|------------------------|
-| Language       | Python 3.10+            |
-| API Framework  | FastAPI                 |
-| Validation     | Pydantic v1             |
-| Server         | Uvicorn (ASGI)          |
-| Containerisation | Docker               |
-| Testing        | pytest + httpx          |
-| API Docs       | Swagger UI / ReDoc      |
+| Component        | Technology              |
+|------------------|-------------------------|
+| Language         | Python 3.10+            |
+| API Framework    | FastAPI                 |
+| Validation       | Pydantic v2             |
+| Server           | Uvicorn (ASGI)          |
+| Containerisation | Docker                  |
+| Testing          | pytest + httpx          |
+| API Docs         | Swagger UI / ReDoc      |
 
 ---
 
@@ -41,47 +42,55 @@ Lightweight-Finance-API/
 ├── models.py             # Pydantic request and response models
 ├── requirements.txt      # Python dependencies
 ├── Dockerfile            # Container build instructions
+├── .dockerignore         # Files excluded from Docker build
+├── .gitignore            # Files excluded from Git
 ├── README.md             # This file
 ├── tests/
-│   └── test_main.py      # Automated pytest test suite (19 tests)
+│   ├── __init__.py
+│   └── test_main.py      # Automated pytest test suite (20 tests)
 └── docs/
-    ├── PROPOSAL.md       # Project Proposal
-    ├── HLD.md            # High-Level Design
-    ├── LLD.md            # Low-Level Design
-    └── FINAL_REPORT.md   # Final Report
+    ├── DOC01_Project_Proposal.docx
+    ├── DOC02_PRD.docx
+    ├── DOC03_HLD.docx
+    ├── DOC04_LLD.docx
+    ├── DOC05_API_Reference.md
+    ├── DOC06_Deployment_Guide.md
+    ├── DOC07_Test_Report.md
+    ├── DOC08_Final_Report.docx
+    └── DOC09_Presentation.pptx
 ```
 
 ---
 
 ## API Endpoints
 
-| Method | Endpoint         | Description                        |
-|--------|------------------|------------------------------------|
-| GET    | `/health`        | Health check — confirms API is running |
-| POST   | `/income`        | Add an income record               |
-| POST   | `/expense`       | Add an expense record              |
-| GET    | `/summary`       | Get total income, expenses, balance |
-| POST   | `/budget`        | Set monthly budget limit           |
-| GET    | `/budget-status` | Get budget, amount spent, remaining |
+| Method | Endpoint         | Description                             |
+|--------|------------------|-----------------------------------------|
+| GET    | `/health`        | Health check — confirms API is running  |
+| POST   | `/income`        | Add an income record                    |
+| POST   | `/expense`       | Add an expense record                   |
+| GET    | `/summary`       | Get total income, expenses, and balance |
+| POST   | `/budget`        | Set monthly budget limit                |
+| GET    | `/budget-status` | Get budget, amount spent, and remaining |
 
 ---
 
 ## How to Run
 
-### Option A — Local Python
+### Option A — Local Python (recommended for testing)
 
 ```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+# 1. Install dependencies (use Python 3.11)
+py -3.11 -m pip install fastapi uvicorn httpx pytest
 
 # 2. Start the server
-uvicorn main:app --reload
+py -3.11 -m uvicorn main:app --reload
 
 # 3. Open API docs
 # http://localhost:8000/docs
 ```
 
-### Option B — Docker
+### Option B — Docker (recommended for deployment)
 
 ```bash
 # 1. Build the image
@@ -94,20 +103,31 @@ docker run -p 8000:8000 finance-api
 # http://localhost:8000/docs
 ```
 
+### Option C — Docker Compose
+
+```bash
+docker compose up --build
+```
+
 ---
 
 ## API Documentation
 
 FastAPI automatically generates interactive documentation:
 
-| Interface   | URL                                  |
-|-------------|--------------------------------------|
-| Swagger UI  | http://localhost:8000/docs           |
-| ReDoc       | http://localhost:8000/redoc          |
+| Interface    | URL                                     |
+|--------------|-----------------------------------------|
+| Swagger UI   | http://localhost:8000/docs              |
+| ReDoc        | http://localhost:8000/redoc             |
 
 ---
 
 ## Example Requests
+
+**Health check:**
+```bash
+curl http://localhost:8000/health
+```
 
 **Add income:**
 ```bash
@@ -133,22 +153,22 @@ curl http://localhost:8000/summary
 ## Running Tests
 
 ```bash
-# Install test dependencies
-pip install pytest httpx
-
-# Run all tests
-pytest tests/test_main.py -v
+# Run all 20 tests (use Python 3.11)
+py -3.11 -m pytest tests/test_main.py -v
 ```
 
-Expected output: **19 tests passing**
+Expected output: **20 passed**
+
+> **Note:** Python 3.15+ does not yet have pre-built packages for pydantic-core.
+> Use Python 3.11 for running the tests locally.
 
 ---
 
 ## Design Notes
 
-- **In-memory storage:** All data is stored in Python lists and reset when the server restarts. This is intentional for v1 — the architecture is designed for PostgreSQL to be added in v2 with minimal changes.
+- **In-memory storage:** All data is stored in Python lists and resets when the server restarts. This is intentional for v1 — the architecture is designed so PostgreSQL can be added in v2 with minimal changes to the API layer.
 - **Stateless design:** No server-side sessions. Every request is self-contained, making the API ready for horizontal scaling and cloud deployment.
-- **Validation:** Pydantic models reject invalid inputs before they reach business logic — amounts must be > 0, strings cannot be empty or exceed 50 characters.
+- **Validation:** Pydantic v2 models reject invalid inputs before they reach business logic — amounts must be > 0, strings cannot be empty or exceed 50 characters. Invalid amounts return HTTP 422.
 
 ---
 
@@ -160,6 +180,24 @@ Expected output: **19 tests passing**
 - No per-category budget tracking
 
 These are planned for v2 (PostgreSQL + JWT auth + React dashboard).
+
+---
+
+## Documentation
+
+Full project documentation is in the `docs/` folder:
+
+| Document | Description |
+|----------|-------------|
+| DOC01 — Project Proposal | Problem, objectives, methodology, timeline |
+| DOC02 — PRD | 30 functional requirements, data models, acceptance criteria |
+| DOC03 — HLD | System architecture, data flow, cloud readiness |
+| DOC04 — LLD | Endpoint contracts, pseudocode, source code, traceability |
+| DOC05 — API Reference | Complete endpoint reference with curl examples |
+| DOC06 — Deployment Guide | Local + Docker setup, troubleshooting |
+| DOC07 — Test Report | 39 test cases, 100% pass rate |
+| DOC08 — Final Report | Academic report covering full project lifecycle |
+| DOC09 — Presentation | 12-slide deck for project presentation |
 
 ---
 

@@ -3,19 +3,15 @@ tests/test_main.py
 Automated test suite for the Lightweight Finance API.
 
 Run with:
-    pytest tests/test_main.py -v
+    py -3.11 -m pytest tests/test_main.py -v
 
-Dependencies:
-    pip install pytest httpx
-
-Uses FastAPI's TestClient — no server required.
+Uses FastAPI TestClient — no server required.
 """
 
 import pytest
 import sys
 import os
 
-# Allow imports from project root
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from fastapi.testclient import TestClient
@@ -39,7 +35,6 @@ def reset_state():
 
 @pytest.fixture
 def client():
-    """Return a TestClient bound to the FastAPI app."""
     return TestClient(app)
 
 
@@ -112,12 +107,13 @@ def test_get_budget_status(client):
 # ── Validation & error tests ──────────────────────────────────────────────────
 
 def test_income_zero_amount(client):
-    """Amount = 0 returns HTTP 422 (Pydantic gt=0 validation)."""
+    """Amount = 0 rejected by Pydantic gt=0 rule — returns HTTP 422."""
     r = client.post("/income", json={"amount": 0, "source": "Test"})
     assert r.status_code == 422
 
+
 def test_income_negative_amount(client):
-    """Negative amount returns HTTP 422 (Pydantic gt=0 validation)."""
+    """Negative amount rejected by Pydantic gt=0 rule — returns HTTP 422."""
     r = client.post("/income", json={"amount": -500, "source": "Test"})
     assert r.status_code == 422
 
@@ -135,9 +131,10 @@ def test_income_empty_source(client):
 
 
 def test_expense_negative_amount(client):
-    """Negative expense amount returns HTTP 422 (Pydantic gt=0 validation)."""
+    """Negative expense amount rejected by Pydantic gt=0 rule — returns HTTP 422."""
     r = client.post("/expense", json={"amount": -1, "category": "Food"})
     assert r.status_code == 422
+
 
 def test_expense_missing_category(client):
     """Missing category returns HTTP 422."""
@@ -166,7 +163,7 @@ def test_budget_negative_limit(client):
 # ── Edge case tests ───────────────────────────────────────────────────────────
 
 def test_budget_overwrite(client):
-    """Second POST /budget overwrites first value (SET, not ADD)."""
+    """Second POST /budget overwrites first value — SET not ADD."""
     client.post("/budget", json={"limit": 5000})
     client.post("/budget", json={"limit": 8000})
     r = client.get("/budget-status")
@@ -186,7 +183,7 @@ def test_over_budget_negative_remaining(client):
 def test_invalid_does_not_affect_state(client):
     """A rejected request does not modify stored data."""
     client.post("/income", json={"amount": 1000, "source": "Valid"})
-    client.post("/income", json={"amount": -999, "source": "Bad"})   # rejected
+    client.post("/income", json={"amount": -999, "source": "Bad"})
     assert client.get("/summary").json()["total_income"] == 1000.0
 
 

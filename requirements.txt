@@ -1,2 +1,7 @@
-fastapi
-uvicorn
+# Production dependencies
+fastapi==0.111.0
+uvicorn==0.30.1
+
+# Development / testing dependencies
+httpx==0.27.0
+pytest==8.2.2

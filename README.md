@@ -1,8 +1,33 @@
 # Lightweight Finance API
 
-A simple and lightweight REST API for tracking personal income, expenses, and budget — built with **FastAPI** and **Python**, containerised with **Docker**.
+A simple and lightweight REST API for tracking personal income, expenses, and budget — built with **FastAPI** and **Python**, containerised with **Docker**, with a frontend dashboard.
 
-**IBM SkillsBuild Student Project · Yenepoya University · 2023–2026 Batch · Sayu V**
+**IBM SkillsBuild Student Project · Yenepoya (Deemed to be University) · 2023–2026 Batch · Sayooj V**  
+**Campus ID: 26067 · Registration ID: 23BCAICD096**
+
+---
+
+## Screenshots
+
+### Backend — Swagger UI (API Documentation)
+
+![Swagger UI — endpoints](docs/screenshots/Backend1.png)
+
+*All 6 endpoints grouped by tag — System, Finance, Budget — with OAS 3.1 schema*
+
+![Swagger UI — schemas](docs/screenshots/Backend2.png)
+
+*Auto-generated Pydantic response models — Budget, BudgetStatusResponse, Expense, Income, MessageResponse, SummaryResponse*
+
+### Frontend Dashboard (v2)
+
+![Dashboard — overview](docs/screenshots/dash1.png)
+
+*Live stat cards, expense bar chart, budget ring tracker, and API endpoint status panel*
+
+![Dashboard — test suite and transactions](docs/screenshots/dash2.png)
+
+*20/20 test suite results, recent transactions log, and project info panel*
 
 ---
 
@@ -14,9 +39,10 @@ A simple and lightweight REST API for tracking personal income, expenses, and bu
 - Set a monthly budget limit
 - Check budget status (spent vs remaining)
 - Health check endpoint
-- Input validation via Pydantic — rejects invalid data with clear error messages
-- Auto-generated interactive API documentation (Swagger UI)
+- Input validation via Pydantic v2 — rejects invalid data with clear error messages
+- Auto-generated interactive API documentation (Swagger UI + ReDoc)
 - Containerised with Docker for portable deployment
+- Frontend dashboard (v2) — live charts, forms, budget ring, transaction log
 
 ---
 
@@ -24,13 +50,14 @@ A simple and lightweight REST API for tracking personal income, expenses, and bu
 
 | Component        | Technology              |
 |------------------|-------------------------|
-| Language         | Python 3.10+            |
+| Language         | Python 3.11             |
 | API Framework    | FastAPI                 |
 | Validation       | Pydantic v2             |
 | Server           | Uvicorn (ASGI)          |
 | Containerisation | Docker                  |
 | Testing          | pytest + httpx          |
 | API Docs         | Swagger UI / ReDoc      |
+| Frontend         | HTML + CSS + JavaScript |
 
 ---
 
@@ -38,17 +65,24 @@ A simple and lightweight REST API for tracking personal income, expenses, and bu
 
 ```
 Lightweight-Finance-API/
-├── main.py               # FastAPI app — routes, handlers, storage
+├── main.py               # FastAPI app — routes, handlers, storage, CORS
 ├── models.py             # Pydantic request and response models
 ├── requirements.txt      # Python dependencies
 ├── Dockerfile            # Container build instructions
 ├── .dockerignore         # Files excluded from Docker build
 ├── .gitignore            # Files excluded from Git
 ├── README.md             # This file
+├── frontend/
+│   └── index.html        # Frontend dashboard (v2)
 ├── tests/
 │   ├── __init__.py
 │   └── test_main.py      # Automated pytest test suite (20 tests)
 └── docs/
+    ├── screenshots/
+    │   ├── Backend1.png  # Swagger UI — endpoint list
+    │   ├── Backend2.png  # Swagger UI — schemas
+    │   ├── dash1.png     # Dashboard — overview
+    │   └── dash2.png     # Dashboard — test suite and transactions
     ├── DOC01_Project_Proposal.docx
     ├── DOC02_PRD.docx
     ├── DOC03_HLD.docx
@@ -77,29 +111,24 @@ Lightweight-Finance-API/
 
 ## How to Run
 
-### Option A — Local Python (recommended for testing)
+### Option A — Local Python
 
 ```bash
-# 1. Install dependencies (use Python 3.11)
+# Install dependencies (Python 3.11)
 py -3.11 -m pip install fastapi uvicorn httpx pytest
 
-# 2. Start the server
+# Start the server
 py -3.11 -m uvicorn main:app --reload
 
-# 3. Open API docs
+# Open API docs
 # http://localhost:8000/docs
 ```
 
-### Option B — Docker (recommended for deployment)
+### Option B — Docker
 
 ```bash
-# 1. Build the image
 docker build -t finance-api .
-
-# 2. Run the container
 docker run -p 8000:8000 finance-api
-
-# 3. Open API docs
 # http://localhost:8000/docs
 ```
 
@@ -111,64 +140,61 @@ docker compose up --build
 
 ---
 
-## API Documentation
+## Frontend Dashboard (v2)
 
-FastAPI automatically generates interactive documentation:
+Once the API is running at `localhost:8000`, open the dashboard:
 
-| Interface    | URL                                     |
-|--------------|-----------------------------------------|
-| Swagger UI   | http://localhost:8000/docs              |
-| ReDoc        | http://localhost:8000/redoc             |
+```
+frontend/index.html
+```
+
+Double-click to open in Chrome or Edge. Or serve locally:
+
+```bash
+cd frontend
+py -3.11 -m http.server 3000
+# Open: http://localhost:3000
+```
+
+The dashboard provides:
+- Live balance, income, expense, and budget stat cards
+- Expense bar chart by category — updates as entries are added
+- Budget ring showing percentage spent (turns red if over budget)
+- Add income / Add expense / Set budget forms connected to the live API
+- Recent transactions log
+- All 6 API endpoint status indicators
+- Test suite results panel (20/20 passing)
+- Project information panel
 
 ---
 
-## Example Requests
+## API Documentation
 
-**Health check:**
-```bash
-curl http://localhost:8000/health
-```
-
-**Add income:**
-```bash
-curl -X POST http://localhost:8000/income \
-  -H "Content-Type: application/json" \
-  -d '{"amount": 5000, "source": "Salary"}'
-```
-
-**Add expense:**
-```bash
-curl -X POST http://localhost:8000/expense \
-  -H "Content-Type: application/json" \
-  -d '{"amount": 150.75, "category": "Groceries"}'
-```
-
-**Get summary:**
-```bash
-curl http://localhost:8000/summary
-```
+| Interface    | URL                             |
+|--------------|---------------------------------|
+| Swagger UI   | http://localhost:8000/docs      |
+| ReDoc        | http://localhost:8000/redoc     |
 
 ---
 
 ## Running Tests
 
 ```bash
-# Run all 20 tests (use Python 3.11)
 py -3.11 -m pytest tests/test_main.py -v
 ```
 
 Expected output: **20 passed**
 
-> **Note:** Python 3.15+ does not yet have pre-built packages for pydantic-core.
-> Use Python 3.11 for running the tests locally.
+> Note: Use Python 3.11. Python 3.15 does not yet have pre-built wheels for pydantic-core.
 
 ---
 
 ## Design Notes
 
-- **In-memory storage:** All data is stored in Python lists and resets when the server restarts. This is intentional for v1 — the architecture is designed so PostgreSQL can be added in v2 with minimal changes to the API layer.
-- **Stateless design:** No server-side sessions. Every request is self-contained, making the API ready for horizontal scaling and cloud deployment.
-- **Validation:** Pydantic v2 models reject invalid inputs before they reach business logic — amounts must be > 0, strings cannot be empty or exceed 50 characters. Invalid amounts return HTTP 422.
+- **In-memory storage:** Data resets on server restart. Intentional for v1 — architecture is designed so PostgreSQL can be added in v2 with changes only to the data layer.
+- **Stateless design:** No server-side sessions. Every request is self-contained — ready for horizontal scaling and cloud deployment.
+- **Validation:** Pydantic v2 rejects invalid inputs before they reach business logic — amounts ≤ 0 return HTTP 422.
+- **CORS enabled:** Frontend can call the API from the browser (configured for local development).
 
 ---
 
@@ -176,10 +202,9 @@ Expected output: **20 passed**
 
 - Data is not persistent — resets on server restart
 - Single user only — no authentication
-- No frontend UI
 - No per-category budget tracking
 
-These are planned for v2 (PostgreSQL + JWT auth + React dashboard).
+Planned for v2: PostgreSQL + JWT auth + React dashboard.
 
 ---
 
@@ -195,9 +220,18 @@ Full project documentation is in the `docs/` folder:
 | DOC04 — LLD | Endpoint contracts, pseudocode, source code, traceability |
 | DOC05 — API Reference | Complete endpoint reference with curl examples |
 | DOC06 — Deployment Guide | Local + Docker setup, troubleshooting |
-| DOC07 — Test Report | 39 test cases, 100% pass rate |
+| DOC07 — Test Report | 39 manual test cases + 20 automated tests, 100% pass rate |
 | DOC08 — Final Report | Academic report covering full project lifecycle |
 | DOC09 — Presentation | 12-slide deck for project presentation |
+
+---
+
+## Author
+
+**Sayooj V**  
+Campus ID: 26067 | Registration ID: 23BCAICD096  
+BCA — Major in AI, Cloud Computing & DevOps | 2023–2026 Batch  
+Yenepoya (Deemed to be University), Balmatta, Mangalore - 575 002
 
 ---
 

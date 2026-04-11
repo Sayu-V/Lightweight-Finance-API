@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from models import (
     Income, Expense, Budget,
     MessageResponse, SummaryResponse, BudgetStatusResponse
@@ -8,6 +9,13 @@ app = FastAPI(
     title="Lightweight Finance API",
     description="A simple REST API for tracking personal income, expenses, and budget. Built with FastAPI and Python.",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ── In-memory storage ─────────────────────────────────────────────────────────
